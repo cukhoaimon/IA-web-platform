@@ -20,7 +20,7 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>
 
 function LoginPage() {
-  const { mutate, isPending, error, isError } = useMutation<
+  const { mutate, isPending, error, isError, isSuccess } = useMutation<
     AxiosResponse<LoginFormInputs>,
     AxiosError<ErrorResponse>,
     LoginFormInputs
@@ -53,6 +53,7 @@ function LoginPage() {
       <div className="text-4xl uppercase font-semibold">Register new account</div>
 
       {isError ? <div className="text-red-700">{error?.message}</div> : null}
+      {isSuccess ? <div className="text-green-600">Success</div> : null}
 
       <div className="w-[20rem]">
         <FormProvider {...form}>
