@@ -2,8 +2,12 @@ import { z } from "zod"
 import { FormProvider, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx"
-import { Button } from "@/components/ui/button.tsx"
+import { ButtonLoading } from "@/components/ui/button.tsx"
 import { Input, InputPassword } from "@/components/ui/input.tsx"
+import { useMutation } from "@tanstack/react-query"
+import { axiosClient } from "@/App.tsx"
+import { AxiosError, AxiosResponse } from "axios"
+import { ErrorResponse } from "@/shared/types"
 
 const loginSchema = z.object({
   email: z
@@ -16,17 +20,39 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>
 
 function LoginPage() {
+  const { mutate, isPending, error, isError } = useMutation<
+    AxiosResponse<LoginFormInputs>,
+    AxiosError<ErrorResponse>,
+    LoginFormInputs
+  >({
+    mutationFn: ({ email, password }) =>
+      axiosClient.post(
+        "/api/user/register",
+        {
+          email,
+          password
+        },
+        {
+          headers: {
+            Accept: "application/json"
+          }
+        }
+      )
+  })
+
   const form = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema)
   })
 
   const onSubmit = (formValues: LoginFormInputs) => {
-    console.log("submitted", formValues)
+    mutate(formValues)
   }
 
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="text-4xl uppercase font-semibold">Register new account</div>
+
+      {isError ? <div className="text-red-700">{error?.message}</div> : null}
 
       <div className="w-[20rem]">
         <FormProvider {...form}>
@@ -69,9 +95,9 @@ function LoginPage() {
               )}
             />
 
-            <Button className="ml-auto w-full text-base" type="submit">
+            <ButtonLoading isLoading={isPending} className="ml-auto w-full text-base" type="submit">
               Register
-            </Button>
+            </ButtonLoading>
           </form>
         </FormProvider>
       </div>
