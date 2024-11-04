@@ -30,7 +30,11 @@ function AuthenticationLayout() {
 
   if (checkLoggedIn) return <Loader2 className="animate-spin" />
 
-  return <Outlet />
+  return (
+    <div>
+      <Outlet />
+    </div>
+  )
 }
 
 export default AuthenticationLayout

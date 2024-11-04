@@ -43,7 +43,9 @@ export function AppSidebar(props: AppSidebarProps) {
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader />
-        <SidebarContent />
+        <SidebarContent>
+          <div>You are authenticated</div>
+        </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
