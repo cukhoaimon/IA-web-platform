@@ -59,7 +59,7 @@ const ButtonLoading = React.forwardRef<HTMLButtonElement, ButtonProps & { isLoad
           buttonVariants({ variant, size, className }),
           "disabled:border disabled:border-opacity-50 disabled:border-[#98A2B3]"
         )}
-        disabled={isLoading || disabled}
+        disabled={isLoading}
         {...props}
       >
         {children}
@@ -75,7 +75,5 @@ const ButtonLoading = React.forwardRef<HTMLButtonElement, ButtonProps & { isLoad
     )
   }
 )
-
-ButtonLoading.displayName = "ButtonLoading"
 
 export { Button, buttonVariants, ButtonLoading }

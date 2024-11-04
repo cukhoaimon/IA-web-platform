@@ -1,13 +1,33 @@
-import { z } from "zod"
-import { FormProvider, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx"
-import { ButtonLoading } from "@/components/ui/button.tsx"
 import { Input, InputPassword } from "@/components/ui/input.tsx"
-import { useMutation } from "@tanstack/react-query"
-import { axiosClient } from "@/App.tsx"
-import { AxiosError, AxiosResponse } from "axios"
-import { ErrorResponse } from "@/shared/types"
+import { ButtonLoading } from "@/components/ui/button.tsx"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Link } from "react-router-dom"
+import { AppPath } from "@/shared/const"
+import { ReactNode } from "react"
+
+const layoutMapper: Record<Layout, { title: string; text: string; render: ReactNode }> = {
+  login: {
+    title: "Login",
+    text: "Login",
+    render: (
+      <div>
+        Does not have account? <Link to={AppPath.Register}>Register</Link>
+      </div>
+    )
+  },
+  register: {
+    title: "Register new account",
+    text: "Register",
+    render: (
+      <div>
+        Already have an account? <Link to={AppPath.Login}>Login now</Link>
+      </div>
+    )
+  }
+}
 
 const loginSchema = z.object({
   email: z
@@ -17,43 +37,25 @@ const loginSchema = z.object({
   password: z.string().min(1, { message: "Password is required" })
 })
 
-type LoginFormInputs = z.infer<typeof loginSchema>
+export type LoginFormInputs = z.infer<typeof loginSchema>
 
-function LoginPage() {
-  const { mutate, isPending, error, isError, isSuccess } = useMutation<
-    AxiosResponse<LoginFormInputs>,
-    AxiosError<ErrorResponse>,
-    LoginFormInputs
-  >({
-    mutationFn: ({ email, password }) =>
-      axiosClient.post(
-        "/api/user/register",
-        {
-          email,
-          password
-        },
-        {
-          headers: {
-            Accept: "application/json"
-          }
-        }
-      )
-  })
+type Layout = "login" | "register"
+interface LoginRegisterTemplateProps {
+  layout: Layout
+  onSubmit: SubmitHandler<LoginFormInputs>
+  isPending?: boolean
+}
 
+function LoginRegisterTemplate(props: LoginRegisterTemplateProps) {
+  const { onSubmit, isPending, layout } = props
   const form = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema)
   })
-
-  const onSubmit = (formValues: LoginFormInputs) => {
-    mutate(formValues)
-  }
+  const currentLayout = layoutMapper[layout]
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      <div className="text-4xl uppercase font-semibold">Register new account</div>
-
-      {isError ? <div className="text-red-700">{error?.message}</div> : null}
-      {isSuccess ? <div className="text-green-600">Success</div> : null}
+      <div className="text-4xl uppercase font-semibold">{currentLayout.title}</div>
 
       <div className="w-[20rem]">
         <FormProvider {...form}>
@@ -97,8 +99,10 @@ function LoginPage() {
             />
 
             <ButtonLoading isLoading={isPending} className="ml-auto w-full text-base" type="submit">
-              Register
+              {currentLayout.title}
             </ButtonLoading>
+
+            {currentLayout.render}
           </form>
         </FormProvider>
       </div>
@@ -106,4 +110,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage
+export default LoginRegisterTemplate

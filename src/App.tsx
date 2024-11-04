@@ -1,27 +1,10 @@
 import "./App.css"
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider
-} from "react-router-dom"
-import LoginPage from "@/modules/auth/LoginPage.tsx"
-import axios from "axios"
+import { RouterProvider } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { routes } from "@/routes"
+import { Toaster } from "@/components/ui/toaster.tsx"
 
-const routes = createBrowserRouter(
-  createRoutesFromElements(
-    <Route errorElement={<div>Error 404</div>}>
-      <Route index path="/" element={<LoginPage />} />
-    </Route>
-  )
-)
-
-export const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_ENDPOINT
-})
-
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnMount: true,
@@ -35,6 +18,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={routes} />
+      <Toaster />
     </QueryClientProvider>
   )
 }
